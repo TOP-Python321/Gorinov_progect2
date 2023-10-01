@@ -1,0 +1,292 @@
+''
+'' A Monokai Pro style from PyCharm
+''
+'' Original Author: https://github.com/GennDALF
+'' https://github.com/...
+''
+
+!if (%not(%variable_exists("$FONT_NAME")))
+!$FONT_NAME = "Space Mono"
+!endif
+
+!if (%not(%variable_exists("$FONT_NAME_NARROW")))
+!$FONT_NAME_NARROW = "Monitorica-Italic"
+!endif
+
+!if (%not(%variable_exists("$FONT_NAME_CYRILLIC")))
+!$FONT_NAME_CYRILLIC = "Noto Sans"
+!endif
+
+!if (%not(%variable_exists("$FONT_SIZE")))
+!$FONT_SIZE = 15
+!$FONT_SIZE_SMALLER = 13
+!$FONT_SIZE_LARGER = 18
+!endif
+
+!$FONT_VERY_LIGHT = "fcfcfa"
+!$FONT_LIGHT = "bfbfbe"
+!$FONT_DARK = "8e8e8d"
+!$FONT_VERY_DARK = "696969"
+
+!$BOX_BG_LIGHT = "c5c5c4"
+!$BOX_BG = "4d4d4d"
+!$BOX_BG_DARK = "171717"
+
+!$BORDER = "afb1b3"
+!$BORDER_LIGHT = "fcfcfa"
+!$BORDER_DARK = "171717"
+
+!$ACCENT = "faaa3c"
+!$ACCENT_LIGHT = "#fccc8a"
+!$ACCENT_DARK = "#b56b05"
+'' skinparam stereotypeCBackgroundColor $ACCENT
+
+!$ARROW = "afb1b3"
+!$ARROW_LIGHT = "fcfcfa"
+!$ARROW_DARK = "000"
+!$ARROW_FONT = "b7b6b6"
+
+
+skinparam backgroundColor 272822
+
+!procedure font_style()
+  fontColor $FONT_LIGHT
+  fontName $FONT_NAME
+  fontSize $FONT_SIZE
+  stereotypeFontColor $FONT_VERY_LIGHT
+  stereotypeFontSize $FONT_SIZE
+!endprocedure
+
+!procedure icon_style()
+  publicColor a8db6a
+  publicBackgroundColor a8db6a
+  privateColor be3c2d
+  privateBackgroundColor be3c2d
+  protectedColor ffd866
+  protectedBackgroundColor ffd866
+  packageColor 60c0cb
+  packageBackgroundColor 60c0cb
+!endprocedure
+
+!procedure basic_style()
+  backgroundColor $BOX_BG
+  borderColor $BORDER
+  borderThickness 1
+!endprocedure
+
+!procedure light_style()
+  backgroundColor $BOX_BG_LIGHT
+  borderColor $BORDER_LIGHT
+!endprocedure
+
+!procedure dark_style()
+  backgroundColor $BOX_BG_DARK
+  borderColor $BORDER_DARK
+!endprocedure
+
+!procedure container_style()
+  backgroundColor transparent
+  borderColor $ARROW
+!endprocedure
+
+!procedure heavy_style()
+  backgroundColor transparent
+  borderColor $BORDER_DARK
+  borderThickness 3
+!endprocedure
+
+!procedure accent_style()
+  backgroundColor $ACCENT
+  borderColor $ACCENT_DARK
+!endprocedure
+
+!procedure arrow_style()
+  arrowColor $ARROW
+  arrowFontName $FONT_NAME
+  arrowFontColor $ARROW_FONT
+  arrowFontSize $FONT_SIZE
+  arrowFontStyle Bold
+!endprocedure
+
+skinparam legend {
+  heavy_style()
+  fontColor $FONT_LIGHT
+  fontName $FONT_NAME_NARROW
+  fontSize $FONT_SIZE_LARGER
+  fontStyle Bold
+}
+
+' Class diagrams
+
+skinparam circledCharacter {
+  radius 12
+  fontSize $FONT_SIZE
+  fontName $FONT_NAME
+}
+
+skinparam icon {
+  icon_style()
+}
+
+skinparam class {
+  basic_style()
+  font_style()
+  arrow_style()
+
+  stereotypeFontColor $FONT_DARK
+  attributeFontColor $FONT_VERY_LIGHT
+  attributeFontSize $FONT_SIZE
+}
+
+' Sequence diagrams
+
+skinparam sequence {
+  font_style()
+  arrow_style()
+
+  lifeLineBorderThickness 2
+  lifeLineBorderColor $ACCENT
+  lifeLineBackgroundColor $BOX_BG_DARK
+
+  groupBorderThickness 3
+  groupBorderColor $BOX_BG_DARK
+  groupBackgroundColor $BOX_BG_DARK
+  groupBodyBackgroundColor transparent
+  groupFontColor $FONT_LIGHT
+  groupFontName $FONT_NAME
+  groupFontSize $FONT_SIZE_SMALLER
+  groupHeaderFontColor $FONT_DARK
+  groupHeaderFontName $FONT_NAME_NARROW
+}
+
+skinparam participant {
+  basic_style()
+  font_style()
+}
+
+skinparam actor {
+  basic_style()
+  font_style()
+}
+
+skinparam boundary {
+  basic_style()
+  font_style()
+}
+
+skinparam control {
+  basic_style()
+  font_style()
+}
+
+skinparam entity {
+  basic_style()
+  font_style()
+}
+
+skinparam collections {
+  basic_style()
+  font_style()
+}
+
+' Component diagrams
+
+skinparam interface {
+  accent_style()
+  font_style()
+}
+
+skinparam component {
+  basic_style()
+  font_style()
+}
+
+skinparam node {
+  basic_style()
+  font_style()
+}
+
+skinparam database {
+  basic_style()
+  font_style()
+}
+
+skinparam queue {
+  basic_style()
+  font_style()
+}
+
+' Use Case diagrams
+
+skinparam usecase {
+  basic_style()
+  font_style()
+  arrow_style()
+}
+
+skinparam activity {
+  basic_style()
+  font_style()
+  arrow_style()
+
+  StartColor $ACCENT_DARK
+  EndColor $ACCENT_DARK
+  ' DiamondBackgroundColor $ACCENT_DARK
+  DiamondBorderColor $ACCENT_DARK
+}
+
+' State diagrams
+
+skinparam state {
+  basic_style()
+  font_style()
+  arrow_style()
+
+  StartColor $ACCENT_DARK
+  EndColor $ACCENT_DARK
+}
+
+' Object diagrams
+
+skinparam object {
+  basic_style()
+  font_style()
+  arrow_style()
+}
+
+' Common
+
+skinparam frame {
+  heavy_style()
+
+  FontColor $FONT_LIGHT
+}
+
+skinparam package {
+  FontColor $FONT_DARK
+}
+
+skinparam note {
+  light_style()
+
+  FontName $FONT_NAME_CYRILLIC
+  FontSize $FONT_SIZE_SMALLER
+  FontStyle Italic
+  FontColor $BOX_BG_DARK
+}
+
+skinparam cloud {
+  basic_style()
+  font_style()
+  arrow_style()
+}
+
+skinparam rectangle {
+  container_style()
+  font_style()
+}
+
+skinparam storage {
+  basic_style()
+  font_style()
+}

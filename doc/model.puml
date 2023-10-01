@@ -1,0 +1,93 @@
+@startuml
+
+!theme monokai_pro from ..\.styles
+scale 2
+
+hide abstract empty members
+hide class empty members
+hide enum empty members
+
+abstract list
+
+enum Kind {
+    CAT
+    DOG
+    TURTLE
+    SNAKE
+    ...
+}
+
+enum Maturity {
+    CUB
+    YOUNG
+    ADULT
+    OLD
+}
+
+class Creature {
+    +kind: Kind
+    +name: <i>str</i>
+    +age: <i>int</i>
+    +mature: Maturity
+    +params: <i>dict</i>[<i>Type</i>, Parameter]
+    +history: History
+    +update() → <i>None</i>
+    -grow_up() → <i>None</i>
+}
+
+class History <<caretaker>> {
+    +get_param_history() → <i>tuple</i>[<i>float</i>, ...]
+}
+
+class State <<memento>> {
+    +age: <i>int</i>
+    +param1: <i>float</i>
+    +param2: <i>float</i>
+    ...
+}
+
+class KindParameters {
+    +days: <i>int</i>
+    +params: <i>dict</i>[<i>Type</i>, Parameter]
+}
+
+abstract Parameter <<observer>> {
+    #value: <i>float</i>
+    +min: <i>float</i>
+    +max: <i>float</i>
+    +origin: Creature
+    ..<font size=12><i> getters </i></font>..
+    +value → <i>float</i>
+    +range → <i>tuple</i>[<i>float</i>, <i>float</i>]
+    ..<font size=12><i> setters </i></font>..
+    +value(<i>float</i>)
+    ..<font size=12><i> methods </i></font>..
+    +{abstract}update() → <i>None</i>
+}
+class Health {
+    +update()
+}
+class Hunger {
+    +update()
+}
+
+list <|-- History
+
+Creature o-- Kind
+Creature o-left- Maturity
+Creature o-right-o Parameter
+Creature o-up- History
+
+History o-left- State
+
+Parameter ..> Kind
+Parameter o-- KindParameters
+
+Parameter <|-- Health
+Parameter <|-- Hunger
+
+Kind o-up- Maturity
+Kind o-right- KindParameters
+
+
+@enduml
