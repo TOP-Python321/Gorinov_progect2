@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 from numbers import Real
 from typing import Type
+from itertools import chain
 
 
 class Maturity(Enum):
@@ -117,10 +118,26 @@ class Parameter(ABC):
 
 class Health(Parameter):
     def update(self):
-        hunger = self.origin.kind.value[self.origin.mature].params[Setiety]
-        critical = sum(hunger.range) / 4
-        if self.origin.params[Setiety].value < critical:
+        hunger = self.origin.kind.value[self.origin.mature].params[Satiety]
+        thirst = self.origin.kind.value[self.origin.mature].params[Thirst]
+        critical_thirst = 3 * (sum(thirst.range)) / 4
+        critical_hunger = sum(hunger.range) / 4
+        if (
+            self.origin.params[Satiety].value < critical_hunger or
+            self.origin.params[Thirst].value > critical_thirst
+        ):
             self.value -= 0.5
+
+
+class Satiety(Parameter):
+    def update(self):
+        self.value -= 1
+
+
+class Thirst(Parameter):
+    """Предcтавляет класс описывающий жажду существа"""
+    def update(self) -> None:
+        self.value += 1
 
 
 class Action(ABC):
@@ -141,7 +158,13 @@ class Feed(Action):
         self.amount = amount
         
     def action(self):
-        self.origin.params[Setiety].value += self.amount
+        self.origin.params[Satiety].value += self.amount
+
+
+class Water(Action):
+    """Представляе класс описывающий действие - "напоить существо"."""
+    def action(self):
+        self.origin.params[Thirst].value -= 1
 
 
 class PlayRope(Action):
@@ -152,11 +175,6 @@ class PlayRope(Action):
 class Sleep(Action):
     def action(self):
         print('сон')
-
-
-class Setiety(Parameter):
-    def update(self):
-        self.value -= 1
 
 
 class KindParameters:
@@ -173,29 +191,32 @@ class KindParameters:
         }
         self.player_actions = player_actions
         self.creature_action = creature_action
-        
 
 class Kind(Enum):
     CAT = {
         Maturity.CUB: KindParameters(
             4,
             Health(10, 0, 20),
-            Setiety(5, 0, 25),
-            player_actions = [
+            Thirst(5, 0, 25),
+            Satiety(5, 0, 25),
+            player_actions=[
                 Feed(20),
+                Water()
             ],
-            creature_action = {
+            creature_action={
                 PlayRope(100),
             }
         ),
         Maturity.YOUNG: KindParameters(
             10,
             Health(0, 0, 50),
-            Setiety(0, 0, 30),
-            player_actions = [
+            Thirst(0, 0, 30),
+            Satiety(0, 0, 30),
+            player_actions=[
                 Feed(25),
+                Water()
             ],
-            creature_action = {
+            creature_action={
                 PlayRope(100),
                 Sleep(120),
             }
@@ -203,11 +224,13 @@ class Kind(Enum):
         Maturity.ADULT: KindParameters(
             20,
             Health(0, 0, 45),
-            Setiety(0, 0, 25),
-            player_actions = [
+            Thirst(0, 0, 25),
+            Satiety(0, 0, 25),
+            player_actions=[
                 Feed(20),
+                Water()
             ],
-            creature_action = {
+            creature_action={
                 PlayRope(180),
                 Sleep(60),
             }
@@ -215,11 +238,13 @@ class Kind(Enum):
         Maturity.OLD: KindParameters(
             12,
             Health(0, 0, 35),
-            Setiety(0, 0, 20),
-            player_actions = [
+            Thirst(0, 0, 20),
+            Satiety(0, 0, 20),
+            player_actions=[
                 Feed(10),
+                Water()
             ],
-            creature_action = {
+            creature_action={
                 Sleep(30)
             }
         ),
