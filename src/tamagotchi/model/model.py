@@ -140,6 +140,12 @@ class Thirst(Parameter):
         self.value += 1
 
 
+class Mood(Parameter):
+    """Представляет настроение существа"""
+    def update(self) -> None:
+        self.value += 1
+
+
 class Action(ABC):
     name: str
     
@@ -169,6 +175,7 @@ class Water(Action):
 
 class PlayRope(Action):
     def action(self):
+        self.origin.params[Mood].update()
         print('веревочка')
 
 
@@ -199,6 +206,7 @@ class Kind(Enum):
             Health(10, 0, 20),
             Thirst(5, 0, 25),
             Satiety(5, 0, 25),
+            Mood(10, 0, 50),
             player_actions=[
                 Feed(20),
                 Water()
@@ -212,6 +220,7 @@ class Kind(Enum):
             Health(0, 0, 50),
             Thirst(0, 0, 30),
             Satiety(0, 0, 30),
+            Mood(0, 0, 50),
             player_actions=[
                 Feed(25),
                 Water()
@@ -226,6 +235,7 @@ class Kind(Enum):
             Health(0, 0, 45),
             Thirst(0, 0, 25),
             Satiety(0, 0, 25),
+            Mood(0, 0, 40),
             player_actions=[
                 Feed(20),
                 Water()
@@ -240,6 +250,7 @@ class Kind(Enum):
             Health(0, 0, 35),
             Thirst(0, 0, 20),
             Satiety(0, 0, 20),
+            Mood(0, 0, 30),
             player_actions=[
                 Feed(10),
                 Water()
