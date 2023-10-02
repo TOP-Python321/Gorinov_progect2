@@ -143,7 +143,13 @@ class Thirst(Parameter):
 class Mood(Parameter):
     """Представляет настроение существа"""
     def update(self) -> None:
-        self.value += 1
+        if self.value < sum(self.origin.kind.value[self.origin.mature].params[Mood].range) / 4:
+            for action in self.origin.creature_action:
+                if action.__class__.__name__ == 'PlayRope':
+                    print('!!!action!!!')
+                    action.action()
+        else:
+            self.value -= 1
 
 
 class Action(ABC):
@@ -175,12 +181,13 @@ class Water(Action):
 
 class PlayRope(Action):
     def action(self):
-        self.origin.params[Mood].update()
+        self.origin.params[Mood].value += 2
         print('веревочка')
 
 
 class Sleep(Action):
     def action(self):
+        self.origin.params[Satiety].update()
         print('сон')
 
 
@@ -198,6 +205,7 @@ class KindParameters:
         }
         self.player_actions = player_actions
         self.creature_action = creature_action
+
 
 class Kind(Enum):
     CAT = {
