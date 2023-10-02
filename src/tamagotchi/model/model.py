@@ -174,9 +174,15 @@ class Feed(Action):
 
 
 class Water(Action):
-    """Представляе класс описывающий действие - "напоить существо"."""
+    """Представляет класс описывающий действие - "напоить существо"."""
     def action(self):
         self.origin.params[Thirst].value -= 1
+
+
+class Pet(Action):
+    """Описывает действие - "погладить существо"."""
+    def action(self):
+        self.origin.params[Mood].value += 1
 
 
 class PlayRope(Action):
@@ -217,7 +223,8 @@ class Kind(Enum):
             Mood(10, 0, 50),
             player_actions=[
                 Feed(20),
-                Water()
+                Water(),
+                Pet()
             ],
             creature_action={
                 PlayRope(100),
@@ -231,7 +238,8 @@ class Kind(Enum):
             Mood(0, 0, 50),
             player_actions=[
                 Feed(25),
-                Water()
+                Water(),
+                Pet()
             ],
             creature_action={
                 PlayRope(100),
@@ -246,7 +254,8 @@ class Kind(Enum):
             Mood(0, 0, 40),
             player_actions=[
                 Feed(20),
-                Water()
+                Water(),
+                Pet()
             ],
             creature_action={
                 PlayRope(180),
@@ -261,7 +270,8 @@ class Kind(Enum):
             Mood(0, 0, 30),
             player_actions=[
                 Feed(10),
-                Water()
+                Water(),
+                Pet()
             ],
             creature_action={
                 Sleep(30)

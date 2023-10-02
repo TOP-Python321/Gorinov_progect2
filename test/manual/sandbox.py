@@ -47,3 +47,8 @@ print(f'sem.creature_action = {[elem.__class__.__name__ for elem in sem.creature
 for elem in sem.creature_action:
     elem.action()
 print_sem_params()
+
+# тест Pet.action()
+print(f'sem.player_actions[{sem.player_actions[2].__class__.__name__}]')
+sem.player_actions[2].action()
+print_sem_params()
