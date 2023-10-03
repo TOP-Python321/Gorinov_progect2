@@ -207,11 +207,15 @@ class PlayRope(Action):
 
 
 class Sleep(Action):
-    def action(self):
-        self.origin.params[Satiety].update()
+    def action(self) -> None:
         self.origin.params[Satiety].value -= 0.5
         print('сон')
 
+
+class Miss(Action):
+    """Представляет действие питомца - 'скучать'."""
+    def action(self) -> None:
+        self.origin.params[Mood].value -= 3
 
 class KindParameters:
     def __init__(
@@ -245,6 +249,7 @@ class Kind(Enum):
             ],
             creature_action={
                 PlayRope(100),
+                Miss(80)
             }
         ),
         Maturity.YOUNG: KindParameters(
@@ -261,6 +266,7 @@ class Kind(Enum):
             ],
             creature_action={
                 PlayRope(100),
+                Miss(80),
                 Sleep(120),
             }
         ),
@@ -278,6 +284,7 @@ class Kind(Enum):
             ],
             creature_action={
                 PlayRope(180),
+                Miss(120),
                 Sleep(60),
             }
         ),
@@ -294,6 +301,7 @@ class Kind(Enum):
                 PlayPet()
             ],
             creature_action={
+                Miss(80),
                 Sleep(30)
             }
         ),
