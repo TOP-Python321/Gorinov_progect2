@@ -185,15 +185,31 @@ class Pet(Action):
         self.origin.params[Mood].value += 1
 
 
+class PlayPet(Action):
+    """Описывает действие - "играть с питомцем"."""
+    def action(self):
+        self.origin.params[Mood].value += 1
+        self.origin.params[Satiety] -= 2
+        self.origin.params[Thirst] += 2
+        if (
+            self.origin.params[Mood].value > sum(self.origin.kind.value[self.origin.mature].params[Mood].range) / 2 and
+            self.origin.params[Satiety].value > sum(self.origin.kind.value[self.origin.mature].params[Satiety].range) / 2
+        ):
+            self.origin.params[Health].value += 1
+
+
 class PlayRope(Action):
     def action(self):
         self.origin.params[Mood].value += 2
+        self.origin.params[Satiety].value -= 0.5
+        self.origin.params[Thirst].value += 0.5
         print('веревочка')
 
 
 class Sleep(Action):
     def action(self):
         self.origin.params[Satiety].update()
+        self.origin.params[Satiety].value -= 0.5
         print('сон')
 
 
@@ -224,7 +240,8 @@ class Kind(Enum):
             player_actions=[
                 Feed(20),
                 Water(),
-                Pet()
+                Pet(),
+                PlayPet()
             ],
             creature_action={
                 PlayRope(100),
@@ -239,7 +256,8 @@ class Kind(Enum):
             player_actions=[
                 Feed(25),
                 Water(),
-                Pet()
+                Pet(),
+                PlayPet()
             ],
             creature_action={
                 PlayRope(100),
@@ -255,7 +273,8 @@ class Kind(Enum):
             player_actions=[
                 Feed(20),
                 Water(),
-                Pet()
+                Pet(),
+                PlayPet()
             ],
             creature_action={
                 PlayRope(180),
@@ -271,7 +290,8 @@ class Kind(Enum):
             player_actions=[
                 Feed(10),
                 Water(),
-                Pet()
+                Pet(),
+                PlayPet()
             ],
             creature_action={
                 Sleep(30)
