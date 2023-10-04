@@ -189,8 +189,8 @@ class PlayPet(Action):
     """Описывает действие - "играть с питомцем"."""
     def action(self):
         self.origin.params[Mood].value += 1
-        self.origin.params[Satiety] -= 2
-        self.origin.params[Thirst] += 2
+        self.origin.params[Satiety].value -= 2
+        self.origin.params[Thirst].value += 2
         if (
             self.origin.params[Mood].value > sum(self.origin.kind.value[self.origin.mature].params[Mood].range) / 2 and
             self.origin.params[Satiety].value > sum(self.origin.kind.value[self.origin.mature].params[Satiety].range) / 2

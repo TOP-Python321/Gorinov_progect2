@@ -52,3 +52,15 @@ print_sem_params()
 print(f'sem.player_actions[{sem.player_actions[2].__class__.__name__}]')
 sem.player_actions[2].action()
 print_sem_params()
+
+# тест PlayPet
+print(f'sem.player_actions[{sem.player_actions[3].__class__.__name__}]')
+sem.player_actions[3].action()
+print_sem_params()
+
+# проверка условия в PlayPet
+print('проверка условия в PlayPet')
+sem.params[Mood].value = sem.params[Mood].max
+sem.params[Satiety].value = sem.params[Satiety].max
+sem.player_actions[3].action()
+print_sem_params()
