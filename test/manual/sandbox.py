@@ -14,7 +14,7 @@ print(path[0])
 
 from model import *
 
-sem = Creature(Kind.CAT, 'Сэм')
+sem = Creature(cat_kind, 'Сэм')
 for elem in sem.creature_action:
     print(elem, elem.__class__)
 
@@ -42,7 +42,7 @@ print(f'sem.player_actions[{sem.player_actions[1].__class__.__name__}].action()'
 sem.player_actions[1].action()
 print_sem_params()
 
-# Тест Mood
+# Тест Mood и Miss
 print(f'sem.creature_action = {[elem.__class__.__name__ for elem in sem.creature_action]}')
 for elem in sem.creature_action:
     elem.action()
@@ -52,6 +52,7 @@ print_sem_params()
 print(f'sem.player_actions[{sem.player_actions[2].__class__.__name__}]')
 sem.player_actions[2].action()
 print_sem_params()
+
 
 # тест PlayPet
 print(f'sem.player_actions[{sem.player_actions[3].__class__.__name__}]')
@@ -64,3 +65,5 @@ sem.params[Mood].value = sem.params[Mood].max
 sem.params[Satiety].value = sem.params[Satiety].max
 sem.player_actions[3].action()
 print_sem_params()
+
+

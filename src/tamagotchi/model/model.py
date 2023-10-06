@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from enum import Enum
 from numbers import Real
+from pathlib import Path
 from typing import Type
 from itertools import chain
 
@@ -20,15 +22,15 @@ class Creature:
         self.mature: Maturity = Maturity.CUB
         self.params: dict[Type, Parameter] = {
             cls: cls(param.value, param.min, param.max, self)
-            for cls, param in kind.value[self.mature].params.items()
+            for cls, param in kind[self.mature].params.items()
         }
         self.player_actions: list[Action] = [
             act.__class__(**(act.__dict__ | {'origin': self}))
-            for act in kind.value[self.mature].player_actions
+            for act in kind[self.mature].player_actions
         ]
         self.creature_action: set[Action] = {
             act.__class__(**(act.__dict__ | {'origin': self}))
-            for act in kind.value[self.mature].creature_action
+            for act in kind[self.mature].creature_action
         }
         self.history: History = History()
 
@@ -41,11 +43,11 @@ class Creature:
             self.mature = Maturity(self.mature.value + 1)
         except ValueError:
             return
-        for cls, param in self.kind.value[self.mature].params.items():
+        for cls, param in self.kind[self.mature].params.items():
             self.params[cls].min = param.min
             self.params[cls].max = param.max
 
-    def save(self):
+    def autosave(self):
         state = State(self.age)
         for param in self.params.values():
             setattr(state, param.__class__.__name__, param.value)
@@ -73,6 +75,78 @@ class State:
 
     def __repr__(self):
         return f"<{'/'.join(f'{v}' for v in self.__dict__.values())}>"
+
+
+class Action(ABC):
+    name: str
+
+    def __init__(self, timer: int = None, origin: Creature = None):
+        self.timer = timer
+        self.origin = origin
+
+    @abstractmethod
+    def action(self):
+        pass
+
+
+class Feed(Action):
+    def __init__(self, amount: int, origin: Creature = None, timer: int = 0):
+        super().__init__(timer, origin)
+        self.amount = amount
+
+    def action(self):
+        self.origin.params[Satiety].value += self.amount
+
+
+class Water(Action):
+    """Представляет класс описывающий действие - "напоить существо"."""
+
+    def action(self):
+        self.origin.params[Thirst].value -= 1
+
+
+class Pet(Action):
+    """Описывает действие - "погладить существо"."""
+
+    def action(self):
+        self.origin.params[Mood].value += 1
+
+
+class PlayPet(Action):
+    """Описывает действие - "играть с питомцем"."""
+
+    def action(self):
+        self.origin.params[Mood].value += 1
+        self.origin.params[Satiety].value -= 2
+        self.origin.params[Thirst].value += 2
+        if (
+                self.origin.params[Mood].value > sum(
+            self.origin.kind[self.origin.mature].params[Mood].range) / 2 and
+                self.origin.params[Satiety].value > sum(
+            self.origin.kind[self.origin.mature].params[Satiety].range) / 2
+        ):
+            self.origin.params[Health].value += 1
+
+
+class PlayRope(Action):
+    def action(self):
+        self.origin.params[Mood].value += 2
+        self.origin.params[Satiety].value -= 0.5
+        self.origin.params[Thirst].value += 0.5
+        print('веревочка')
+
+
+class Sleep(Action):
+    def action(self) -> None:
+        self.origin.params[Satiety].value -= 0.5
+        print('сон')
+
+
+class Miss(Action):
+    """Представляет действие питомца - 'скучать'."""
+
+    def action(self) -> None:
+        self.origin.params[Mood].value -= 3
 
 
 class Parameter(ABC):
@@ -118,8 +192,8 @@ class Parameter(ABC):
 
 class Health(Parameter):
     def update(self):
-        hunger = self.origin.kind.value[self.origin.mature].params[Satiety]
-        thirst = self.origin.kind.value[self.origin.mature].params[Thirst]
+        hunger = self.origin.kind[self.origin.mature].params[Satiety]
+        thirst = self.origin.kind[self.origin.mature].params[Thirst]
         critical_thirst = 3 * (sum(thirst.range)) / 4
         critical_hunger = sum(hunger.range) / 4
         if (
@@ -143,7 +217,7 @@ class Thirst(Parameter):
 class Mood(Parameter):
     """Представляет настроение существа"""
     def update(self) -> None:
-        if self.value < sum(self.origin.kind.value[self.origin.mature].params[Mood].range) / 4:
+        if self.value < sum(self.origin.kind[self.origin.mature].params[Mood].range) / 4:
             for action in self.origin.creature_action:
                 if action.__class__.__name__ == 'PlayRope':
                     print('!!!action!!!')
@@ -152,78 +226,13 @@ class Mood(Parameter):
             self.value -= 1
 
 
-class Action(ABC):
-    name: str
-    
-    def __init__(self, timer: int = None, origin: Creature = None):
-        self.timer = timer
-        self.origin = origin
-        
-    @abstractmethod
-    def action(self):
-        pass
-
-
-class Feed(Action):
-    def __init__(self, amount: int, origin: Creature = None, timer: int = 0):
-        super().__init__(timer, origin)
-        self.amount = amount
-        
-    def action(self):
-        self.origin.params[Satiety].value += self.amount
-
-
-class Water(Action):
-    """Представляет класс описывающий действие - "напоить существо"."""
-    def action(self):
-        self.origin.params[Thirst].value -= 1
-
-
-class Pet(Action):
-    """Описывает действие - "погладить существо"."""
-    def action(self):
-        self.origin.params[Mood].value += 1
-
-
-class PlayPet(Action):
-    """Описывает действие - "играть с питомцем"."""
-    def action(self):
-        self.origin.params[Mood].value += 1
-        self.origin.params[Satiety].value -= 2
-        self.origin.params[Thirst].value += 2
-        if (
-            self.origin.params[Mood].value > sum(self.origin.kind.value[self.origin.mature].params[Mood].range) / 2 and
-            self.origin.params[Satiety].value > sum(self.origin.kind.value[self.origin.mature].params[Satiety].range) / 2
-        ):
-            self.origin.params[Health].value += 1
-
-
-class PlayRope(Action):
-    def action(self):
-        self.origin.params[Mood].value += 2
-        self.origin.params[Satiety].value -= 0.5
-        self.origin.params[Thirst].value += 0.5
-        print('веревочка')
-
-
-class Sleep(Action):
-    def action(self) -> None:
-        self.origin.params[Satiety].value -= 0.5
-        print('сон')
-
-
-class Miss(Action):
-    """Представляет действие питомца - 'скучать'."""
-    def action(self) -> None:
-        self.origin.params[Mood].value -= 3
-
-class KindParameters:
+class MatureOptions:
     def __init__(
             self, days: int, 
             *params: Parameter,
             player_actions: list[Action],
             creature_action: set[Action]
-        ):
+    ):
         self.days = days
         self.params: dict[Type, Parameter] = {
             param.__class__: param
@@ -233,9 +242,26 @@ class KindParameters:
         self.creature_action = creature_action
 
 
-class Kind(Enum):
-    CAT = {
-        Maturity.CUB: KindParameters(
+AgesParameters = dict[Maturity, MatureOptions] | Iterable[tuple[Maturity, MatureOptions]]
+
+
+class Kind(dict):
+    def __init__(
+            self,
+            name: str,
+            image_path: str | Path,
+            ages_parameters: AgesParameters,
+    ):
+        super().__init__(ages_parameters)
+        self.name = name
+        self.image = Path(image_path)
+
+
+cat_kind = Kind(
+    'Кот',
+    'data/images/cat.png',
+    {
+        Maturity.CUB: MatureOptions(
             4,
             Health(10, 0, 20),
             Thirst(5, 0, 25),
@@ -252,7 +278,7 @@ class Kind(Enum):
                 Miss(80)
             }
         ),
-        Maturity.YOUNG: KindParameters(
+        Maturity.YOUNG: MatureOptions(
             10,
             Health(0, 0, 50),
             Thirst(0, 0, 30),
@@ -270,7 +296,7 @@ class Kind(Enum):
                 Sleep(120),
             }
         ),
-        Maturity.ADULT: KindParameters(
+        Maturity.ADULT: MatureOptions(
             20,
             Health(0, 0, 45),
             Thirst(0, 0, 25),
@@ -288,7 +314,7 @@ class Kind(Enum):
                 Sleep(60),
             }
         ),
-        Maturity.OLD: KindParameters(
+        Maturity.OLD: MatureOptions(
             12,
             Health(0, 0, 35),
             Thirst(0, 0, 20),
@@ -306,4 +332,4 @@ class Kind(Enum):
             }
         ),
     }
-
+)
