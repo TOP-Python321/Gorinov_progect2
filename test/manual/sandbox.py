@@ -7,12 +7,13 @@ python -i sandbox.py
 from pathlib import Path
 from sys import path
 
-ROOT_DIR = Path(path[0]).parent.parent
-print(ROOT_DIR)
-path.insert(0, str(ROOT_DIR / 'src/tamagotchi'))
-print(path[0])
+from src.tamagotchi.model import *
 
-from model import *
+ROOT_DIR = Path(path[0]).parent.parent
+# print(ROOT_DIR)
+# path.insert(0, str(ROOT_DIR / 'src/tamagotchi'))
+# print(path[0])
+
 
 sem = Creature(cat_kind, 'Сэм')
 for elem in sem.creature_action:

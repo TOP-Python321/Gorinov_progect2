@@ -1,6 +1,6 @@
 @startuml
 
-!theme monokai_pro from ..\.styles
+'!theme monokai_pro from ..\.styles
 scale 2
 
 hide abstract empty members
@@ -8,14 +8,15 @@ hide class empty members
 hide enum empty members
 
 abstract list
+abstract dict
 
-enum Kind {
-    CAT
-    DOG
-    TURTLE
-    SNAKE
-    ...
-}
+'enum Kind {
+'    CAT
+'    DOG
+'    TURTLE
+'    SNAKE
+'    ...
+'}
 
 enum Maturity {
     CUB
@@ -30,6 +31,9 @@ class Creature {
     +age: <i>int</i>
     +mature: Maturity
     +params: <i>dict</i>[<i>Type</i>, Parameter]
+'    +actions: BaseActions
+    +player_actions: <i>list</i>[Action]
+    +creature_actions: <i>set</i>[Action]
     +history: History
     +update() → <i>None</i>
     -grow_up() → <i>None</i>
@@ -46,12 +50,20 @@ class State <<memento>> {
     ...
 }
 
-class KindParameters {
+class Kind {
+    +name: <i>str</i>
+    +image: <i>Path</i>
+}
+
+class MatureOptions {
     +days: <i>int</i>
     +params: <i>dict</i>[<i>Type</i>, Parameter]
+    +player_actions: <i>list</i>[Action]
+    +creature_actions: <i>set</i>[Action]
 }
 
 abstract Parameter <<observer>> {
+    +{static}name: <i>str</i>
     #value: <i>float</i>
     +min: <i>float</i>
     +max: <i>float</i>
@@ -65,29 +77,126 @@ abstract Parameter <<observer>> {
     +{abstract}update() → <i>None</i>
 }
 class Health {
+    +{static}name: <i>str</i>
     +update()
 }
 class Hunger {
+    +{static}name: <i>str</i>
     +update()
 }
 
-list <|-- History
 
-Creature o-- Kind
-Creature o-left- Maturity
-Creature o-right-o Parameter
-Creature o-up- History
+'class BaseActions {
+'    +feed()
+'    {method}...
+'}
+'class CatActions {
+'    +sleep()
+'    +crazy_run()
+'    +play_rope()
+'    {method}...
+'}
+'class DogActions {
+'    +run()
+'    +play_stick()
+'    {method}...
+'}
 
-History o-left- State
 
-Parameter ..> Kind
-Parameter o-- KindParameters
+abstract Action <<observer>> {
+    +{static}name: <i>str</i>
+    +timer: <i>float</i>
+    +image: <i>Path</i>
+    +origin: Creature
+    +state = <font:Noto Mono>'normal'</font>
+    +{abstract}action()
+}
+class Feed {
+    +amount: int
+    +action()
+}
+class Play {
+    +action()
+}
+class PlayRope {
+    +action()
+}
+class PlayTail {
+    +action()
+}
+
+class NoAction <<singleton>> {
+    #{static}instance: <i>Self</i>
+    +image = <font:Noto Mono>'.../no_action.png'</font>
+    +state = <font:Noto Mono>'disabled'</font>
+    +action()
+}
+
+
+'list <|-- History
+'
+'Creature o-- Kind
+'Creature o-- Maturity
+'Creature o-right-o Parameter
+'Creature o-up-o Action
+'Creature o-up- History
+'
+'History o-left- State
+'
+'Parameter ..> Kind
+'Parameter o--- KindParameters
+'
+'Parameter <|-- Health
+'Parameter <|-- Hunger
+'
+'Kind o-left- Maturity
+'Kind o-right- KindParameters
+'
+''BaseActions <|-- CatActions
+''BaseActions <|-- DogActions
+'
+'Action <|-- Feed
+'Action o-- KindParameters
+'
+'Feed <|-- CatFeed
+'Feed <|-- DogFeed
+'
+'Action <|-- PlayRope
+
+left to right direction
+
+list <|- History
+
+History -o Creature
+State --o History
+
+Creature o--o Action
+Creature o--o Parameter
+
+Creature o-up- Maturity
+Creature o-up- Kind
+
+Kind o-left- Maturity
+
+dict <|-right- Kind
+
+Kind *- MatureOptions
+
+MatureOptions o-- Action
+MatureOptions o-- Parameter
 
 Parameter <|-- Health
 Parameter <|-- Hunger
 
-Kind o-up- Maturity
-Kind o-right- KindParameters
+Action <|-- Feed
+Action <|-- Play
+Action <|-- PlayRope
+Action <|-- PlayTail
 
+Action -[hidden] NoAction
+MatureOptions -[hidden] NoAction
+
+Feed <|-- CatFeed
+Feed <|-- DogFeed
 
 @enduml

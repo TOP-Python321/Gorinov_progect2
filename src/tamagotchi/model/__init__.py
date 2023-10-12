@@ -1,5 +1,6 @@
-from model.model import *
+from src.tamagotchi.model.model import *
 
+#
 # __all__ = [
-    # 'State',
+#    "model",
 # ]

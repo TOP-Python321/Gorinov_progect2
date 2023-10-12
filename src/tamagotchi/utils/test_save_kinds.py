@@ -1,27 +1,31 @@
+# from src.tamagotchi.model import *
+
 from sys import path
 from pathlib import Path
 from json import dumps as jdumps, loads as jloads
 
-from src.tamagotchi.model import *
+ROOT_DIR = Path(path[0]).parent.parent
 
 test_kinds = {
     'Кот': {
         'image': 'data/images/cat.png',
         'Maturity': {
             'CUB': {
-                'Health': (10, 0, 20),
-                'Thirst': (5, 0, 25),
-                'Satiety': (5, 0, 25),
-                'Mood': (10, 0, 50),
+                'params': {
+                    'Health': (10, 0, 20),
+                    'Thirst': (5, 0, 25),
+                    'Satiety': (5, 0, 25),
+                    'Mood': (10, 0, 50),
+                },
                 'player_actions': [
-                    ('Feed', 20),
-                    ('Water', 0),
-                    ('Pet', 0),
-                    ('PlayPet', 0)
+                    ('Feed', ('amount', 20), ('image', 'data/images/btn1.png')),
+                    ('Water', ('image', 'data/images/btn1.png')),
+                    ('Pet', ('image', 'data/images/btn1.png')),
+                    ('PlayPet', ('image', 'data/images/btn1.png'))
                 ],
                 'creature_action': [
-                    ('PlayRope', 100),
-                    ('Miss', 80)
+                    ('PlayRope', ('timer', 100)),
+                    ('Miss', ('timer', 80))
                 ]
             }
         }
