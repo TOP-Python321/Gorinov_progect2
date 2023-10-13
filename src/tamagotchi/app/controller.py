@@ -12,10 +12,12 @@ ROOT_DIR = Path(path[0]).parent.parent.parent
 
 class App:
     def __init__(self):
-        self.creature: model.Creature = LoadCreature.load() if self._is_live() else MainMenu.choose_kind()
+        # self.creature: model.Creature = LoadCreature.load() if self._is_live() else MainMenu.choose_kind()
+        if self.is_live():
+            self.creature: model.Creature = LoadCreature.load()
 
     @staticmethod
-    def _is_live() -> bool:
+    def is_live() -> bool:
         return LoadCreature.default_path.is_file()
 
 

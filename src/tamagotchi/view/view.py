@@ -30,6 +30,7 @@ class RootWidget(Tk):
     def change_frame(self, new_frame: Frame):
         self.mainframe.destroy()
         self.mainframe = new_frame
+        self.mainframe.change_image(new_frame.origin.kind.image)
         self.update()
 
 
@@ -65,7 +66,7 @@ class MainMenu(Frame):
                 # для теста:
                 # command=lambda: master.change_frame(Game(master, yara)),
                 # на перспективу:
-                command=lambda: master.change_frame(Game(master, controller.MainMenu.choose_kind(kind))),
+                command=lambda kid=kind: master.change_frame(Game(master, controller.MainMenu.choose_kind(kid))),
             )
             btn.grid(
                 row=row, column=column,
@@ -78,6 +79,7 @@ class Game(Frame):
     """"""
     def __init__(self, master: RootWidget, origin: model.Creature):
         super().__init__(master)
+        self.origin = origin
         pad = (master.width // 100 + 1) * 2
         ipad = pad // 4
         self.grid(
@@ -237,16 +239,18 @@ if __name__ == '__main__':
 
     # root.mainframe = MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
 
-    # yara = Creature(controller.LoadKinds(*controller.LoadKinds.generate())[0], 'Яра')
-    # root.mainframe = Game(root, yara)
-    yara = controller.App().creature
-    root.mainframe = Game(root, yara)
 
-    root.mainframe.change_message('\n'.join(str(act.__class__.__name__) for act in yara.player_actions))
-    root.mainframe.change_image(yara.kind.image)
-    root.mainframe.update_creature(yara)
-    # root.mainframe.change_image(r'D:\TOP\Git\progect\Gorinov_progect2\data\images\cat.png')
-    root.mainframe.update_creature(yara)
+    # root.mainframe = Game(root, yara)
+    # yara = controller.App().creature
+    frame = Game(root, controller.App().creature) if controller.App.is_live() else MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
+    root.mainframe = frame
+
+    # root.mainframe.change_message('\n'.join(str(act.__class__.__name__) for act in yara.player_actions))
+    if not isinstance(root.mainframe, MainMenu):
+        root.mainframe.change_image(frame.origin.kind.image)
+    # root.mainframe.update_creature(yara)
+    # # root.mainframe.change_image(r'D:\TOP\Git\progect\Gorinov_progect2\data\images\cat.png')
+    # root.mainframe.update_creature(yara)
 
     root.mainloop()
 
