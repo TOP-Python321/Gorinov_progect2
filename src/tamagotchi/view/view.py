@@ -1,6 +1,6 @@
 from pathlib import Path
 from sys import path
-from tkinter import Tk, PhotoImage, StringVar
+from tkinter import Tk, PhotoImage, StringVar, messagebox
 from tkinter.ttk import Frame, Button, Label
 
 from src.tamagotchi.model import *
@@ -31,6 +31,7 @@ class RootWidget(Tk):
         self.mainframe.destroy()
         self.mainframe = new_frame
         self.mainframe.change_image(new_frame.origin.kind.image)
+        self.mainframe.update_creature(new_frame.origin)
         self.update()
 
 
@@ -125,7 +126,7 @@ class Game(Frame):
             text_panel,
             textvariable=self.params,
             wraplength=self._screen_size//7*2,
-            font=('Consolas', 16, 'bold'),
+            font=('Consolas', 10, 'bold'),
             anchor='ne',
             justify='right',
             # background='#ddd',
@@ -179,7 +180,8 @@ class Game(Frame):
                 # необходимо добавить параметр в lambda-функцию, чтобы каждая из создаваемых в цикле функций обращалась к соответствующему экземпляру action
                 # иначе, функции обращаются к action только во время вызова, а не в момент создания
                 # https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-                command=lambda act=action: self.change_message(f'{act}\n{act.action()}'),
+                command=lambda act=action: self.change_message(f'{act.action()}'),
+                # command=lambda act1=action: self.change_image(act1.image),
             )
             btn.grid(
                 row=0, column=i,
@@ -212,7 +214,7 @@ class Game(Frame):
 
     def update_creature(self, origin: model.Creature):
         origin.update()
-        self.change_params(repr(origin))
+        self.change_params(str(origin))
         self.after(1000, lambda: self.update_creature(origin))
         self.update()
 
@@ -248,10 +250,20 @@ if __name__ == '__main__':
     # root.mainframe.change_message('\n'.join(str(act.__class__.__name__) for act in yara.player_actions))
     if not isinstance(root.mainframe, MainMenu):
         root.mainframe.change_image(frame.origin.kind.image)
+        root.mainframe.update_creature(frame.origin)
+        root.mainframe.change_message('Питомец рад вас видеть.')
     # root.mainframe.update_creature(yara)
     # # root.mainframe.change_image(r'D:\TOP\Git\progect\Gorinov_progect2\data\images\cat.png')
     # root.mainframe.update_creature(yara)
 
+    def on_closing():
+        # сохранение перед выходом из игры
+        # print("сохранение")
+        root.mainframe.origin.autosave()
+        # print(root.mainframe.origin.history)
+        controller.LoadCreature.save(root.mainframe.origin)
+        root.destroy()
+    root.protocol("WM_DELETE_WINDOW", on_closing)
     root.mainloop()
 
 
