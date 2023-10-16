@@ -56,7 +56,10 @@ class Creature:
         self.history.append(state)
 
     def __repr__(self):
-        return f"<{self.name}: {'/'.join(f'{p.value:.1f}' for p in self.params.values())}>"
+        return f"<{self.name}: {'|'.join(f'{p.value:.1f}' for p in self.params.values())}>"
+
+    def __str__(self):
+        return f"{self.name}: \n" + '\n'.join(f'{p.name} = {p.value:.1f}' for p in self.params.values())
 
 
 class History(list):

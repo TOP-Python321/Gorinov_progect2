@@ -49,7 +49,7 @@ class LoadCreature:
 
         creature = model.Creature(kind, data['name'])
         creature.age = data['age']
-        creature.mature = data['maturity']
+        creature.mature = model.Maturity(data['maturity'])
         for k, v in data['params'].items():
             for elem in creature.params.keys():
                 if elem.__name__ == k:
