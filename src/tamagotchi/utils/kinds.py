@@ -16,8 +16,8 @@ cat_kind = Kind(
             Mood(10, 0, 50),
             player_actions=[
                 Feed(amount=20, image=ROOT_DIR / 'data/images/btn1.png'),
-                Water(image=ROOT_DIR / 'data/images/btn1.png'),
-                Pet(image=ROOT_DIR / 'data/images/btn1.png'),
+                Water(image=ROOT_DIR / 'data/images/water.png'),
+                Pet(image=ROOT_DIR / 'data/images/pet_cat.png'),
                 PlayPet(image=ROOT_DIR / 'data/images/btn2.png')
             ],
             creature_action={
