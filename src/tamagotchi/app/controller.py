@@ -4,6 +4,7 @@ from json import dumps as jdumps, loads as jloads
 from pathlib import Path
 from sys import path
 
+
 from src.tamagotchi.model import model
 
 
@@ -38,6 +39,23 @@ class LoadCreature:
         data = jdumps(data, ensure_ascii=False)
         cls.default_path.write_text(data, encoding='utf-8')
 
+    # @classmethod
+    # def load(cls) -> model.Creature:
+    #     data = cls.default_path.read_text(encoding='utf-8')
+    #     data = jloads(data)
+    #     kind = None
+    #     for elem in LoadKinds(*LoadKinds.generate()):
+    #         if elem.name == data['kind']:
+    #             kind = elem
+    #
+    #     creature = model.Creature(kind, data['name'])
+    #     creature.age = data['age']
+    #     creature.mature = model.Maturity(data['maturity'])
+    #     for k, v in data['params'].items():
+    #         for elem in creature.params.keys():
+    #             if elem.__name__ == k:
+    #                 creature.params[elem].value = v
+    #     return creature
     @classmethod
     def load(cls) -> model.Creature:
         data = cls.default_path.read_text(encoding='utf-8')
@@ -47,19 +65,26 @@ class LoadCreature:
             if elem.name == data['kind']:
                 kind = elem
 
+        state = model.State(data['age'])
+        for param, val in data['params'].items():
+            if param != 'age':
+                setattr(state, param, val)
+
+        state = cls.__params_evolution(state)
         creature = model.Creature(kind, data['name'])
-        creature.age = data['age']
+        creature.age = state.age
+        # доработать возможное изменение model.Maturity
         creature.mature = model.Maturity(data['maturity'])
-        for k, v in data['params'].items():
+        for k, v in state.__dict__.items():
             for elem in creature.params.keys():
                 if elem.__name__ == k:
                     creature.params[elem].value = v
         return creature
 
     @classmethod
-    def __params_evolution(cls, saved_state: model.State, hours: float) -> model.State:
+    def __params_evolution(cls, saved_state: model.State, hours: float = 0) -> model.State:
         """Пересчитывает параметры существа в соответствии с мат.моделью имитации жизни при закрытом приложении (ТЗ п.3в)."""
-        hours*cls.game_days_to_real_hours
+        game_day = hours*cls.game_days_to_real_hours
         ...
         return saved_state
 
@@ -68,7 +93,6 @@ class MainMenu:
     @staticmethod
     def start():
         """Запускает GUI с фреймом главного меню."""
-
 
     @staticmethod
     def choose_kind(chosen_kind: model.Kind) -> model.Creature:
