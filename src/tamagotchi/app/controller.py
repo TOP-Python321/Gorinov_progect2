@@ -39,6 +39,28 @@ class LoadCreature:
         data = jdumps(data, ensure_ascii=False)
         cls.default_path.write_text(data, encoding='utf-8')
 
+    @classmethod
+    def load(cls) -> model.Creature:
+        data = cls.default_path.read_text(encoding='utf-8')
+        data = jloads(data)
+        diff_hours = (dt.now().timestamp() - data['timestamp']) / 3600
+        print(f'{diff_hours = }')
+
+        kind = None
+        for elem in LoadKinds(*LoadKinds.generate()):
+            if elem.name == data['kind']:
+                kind = elem
+
+        creature = model.Creature(kind, data['name'])
+        creature.age = data['age']
+        creature.mature = model.Maturity(data['maturity'])
+        for k, v in data['params'].items():
+            for elem in creature.params.keys():
+                if elem.__name__ == k:
+                    creature.params[elem].value = v
+        return cls.__params_evolution(creature, diff_hours)
+
+    # вариант с загрузкой питомца через model.State объект
     # @classmethod
     # def load(cls) -> model.Creature:
     #     data = cls.default_path.read_text(encoding='utf-8')
@@ -48,45 +70,47 @@ class LoadCreature:
     #         if elem.name == data['kind']:
     #             kind = elem
     #
+    #     state = model.State(data['age'])
+    #     for param, val in data['params'].items():
+    #         if param != 'age':
+    #             setattr(state, param, val)
+    #
+    #     state = cls.__params_evolution(state)
     #     creature = model.Creature(kind, data['name'])
-    #     creature.age = data['age']
+    #     creature.age = state.age
+    #     # доработать возможное изменение model.Maturity
     #     creature.mature = model.Maturity(data['maturity'])
-    #     for k, v in data['params'].items():
+    #     for k, v in state.__dict__.items():
     #         for elem in creature.params.keys():
     #             if elem.__name__ == k:
     #                 creature.params[elem].value = v
     #     return creature
-    @classmethod
-    def load(cls) -> model.Creature:
-        data = cls.default_path.read_text(encoding='utf-8')
-        data = jloads(data)
-        kind = None
-        for elem in LoadKinds(*LoadKinds.generate()):
-            if elem.name == data['kind']:
-                kind = elem
-
-        state = model.State(data['age'])
-        for param, val in data['params'].items():
-            if param != 'age':
-                setattr(state, param, val)
-
-        state = cls.__params_evolution(state)
-        creature = model.Creature(kind, data['name'])
-        creature.age = state.age
-        # доработать возможное изменение model.Maturity
-        creature.mature = model.Maturity(data['maturity'])
-        for k, v in state.__dict__.items():
-            for elem in creature.params.keys():
-                if elem.__name__ == k:
-                    creature.params[elem].value = v
-        return creature
 
     @classmethod
-    def __params_evolution(cls, saved_state: model.State, hours: float = 0) -> model.State:
+    def __params_evolution(cls, saved_creature: model.Creature, hours: float = 0) -> model.Creature:
         """Пересчитывает параметры существа в соответствии с мат.моделью имитации жизни при закрытом приложении (ТЗ п.3в)."""
-        game_day = hours*cls.game_days_to_real_hours
-        ...
-        return saved_state
+        game_day = hours * cls.game_days_to_real_hours
+        print(f'{game_day = }')
+        flag = True
+        while flag:
+            list_bool = []
+            for action in saved_creature.creature_action:
+                # перевод таймера в часы
+                timer_hours = round(action.timer / 60, 2)
+                print(timer_hours)
+                if timer_hours < game_day:
+                    list_bool.append(True)
+                    action.action()
+                    game_day -= timer_hours
+                    saved_creature.age += timer_hours
+                    if saved_creature.age > saved_creature.kind[saved_creature.mature].days:
+                        # без проверки диапазона
+                        saved_creature._grow_up()
+                else:
+                    list_bool.append(False)
+                print(list_bool)
+            flag = any(list_bool)
+        return saved_creature
 
 
 class MainMenu:
