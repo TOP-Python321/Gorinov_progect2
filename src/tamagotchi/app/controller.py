@@ -89,6 +89,7 @@ class LoadCreature:
     @classmethod
     def __params_evolution(cls, saved_creature: model.Creature, hours: float = 0) -> model.Creature:
         """Пересчитывает параметры существа в соответствии с мат.моделью имитации жизни при закрытом приложении (ТЗ п.3в)."""
+        # один игровой день при закрытом приложении равен 2 часам реального времени
         game_day = hours * cls.game_days_to_real_hours
         print(f'{game_day = }')
         flag = True

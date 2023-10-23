@@ -212,11 +212,19 @@ class Game(Frame):
         self.screen.configure(image=self._image)
         self.update_idletasks()
 
+    # сделать привязку к игровому дню
     def update_creature(self, origin: model.Creature):
         origin.update()
         self.change_params(str(origin))
-        self.after(1000, lambda: self.update_creature(origin))
+        self.after(5000, lambda: self.update_creature(origin))
         self.update()
+
+
+    # def update_creature_action(self, origin: model.Creature):
+    #     for action in origin.creature_action:
+    #         self.after(1000, lambda act=action: self.change_image(act.image))
+
+
 
 
 def _resize_image(
@@ -251,6 +259,7 @@ if __name__ == '__main__':
     if not isinstance(root.mainframe, MainMenu):
         root.mainframe.change_image(frame.origin.kind.image)
         root.mainframe.update_creature(frame.origin)
+        # root.mainframe.update_creature_action(frame.origin)
         root.mainframe.change_message('Питомец рад вас видеть.')
     # root.mainframe.update_creature(yara)
     # # root.mainframe.change_image(r'D:\TOP\Git\progect\Gorinov_progect2\data\images\cat.png')

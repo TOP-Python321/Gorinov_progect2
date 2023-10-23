@@ -21,8 +21,8 @@ cat_kind = Kind(
                 PlayPet(image=ROOT_DIR / 'data/images/btn2.png')
             ],
             creature_action={
-                PlayRope(timer=100),
-                Miss(timer=80)
+                PlayRope(timer=100, image=ROOT_DIR / 'data/images/cat_sleep.png'),
+                Miss(timer=80, image=ROOT_DIR / 'data/images/cat_peet.png')
             }
         ),
         Maturity.YOUNG: MatureOptions(
@@ -38,9 +38,9 @@ cat_kind = Kind(
                 PlayPet(image=ROOT_DIR / 'data/images/btn1.png')
             ],
             creature_action={
-                PlayRope(timer=100),
-                Miss(timer=80),
-                Sleep(timer=120),
+                PlayRope(timer=100, image=ROOT_DIR / 'data/images/cat_sleep.png'),
+                Miss(timer=80, image=ROOT_DIR / 'data/images/cat_peet.png'),
+                Sleep(timer=120, image=ROOT_DIR / 'data/images/cat_sleep.png'),
             }
         ),
         Maturity.ADULT: MatureOptions(
