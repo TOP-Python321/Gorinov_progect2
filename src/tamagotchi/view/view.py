@@ -249,7 +249,7 @@ def _resize_image(
         print(f'{old_height = } {new_height = }')
         scale_w = round(new_width / old_width)
         scale_h = round(new_height / old_height)
-        image = image.zoom(2, scale_h)
+        image = image.zoom(scale_w, scale_h)
         print('увеличен')
     else:
         scale_w = round(old_width / new_width)
