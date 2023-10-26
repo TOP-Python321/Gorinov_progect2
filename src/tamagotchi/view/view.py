@@ -1,3 +1,4 @@
+from itertools import cycle
 from pathlib import Path
 from sys import path
 from tkinter import Tk, PhotoImage, StringVar, messagebox
@@ -81,6 +82,7 @@ class Game(Frame):
     def __init__(self, master: RootWidget, origin: model.Creature):
         super().__init__(master)
         self.origin = origin
+        self.cycl_creat_act = self.cycle_creature_action(self.origin.creature_action)
         pad = (master.width // 100 + 1) * 2
         ipad = pad // 4
         self.grid(
@@ -219,10 +221,18 @@ class Game(Frame):
         self.after(5000, lambda: self.update_creature(origin))
         self.update()
 
+    def cycle_creature_action(self, iter_action):
+        for action in cycle(iter_action):
+            yield action
 
-    # def update_creature_action(self, origin: model.Creature):
-    #     for action in origin.creature_action:
-    #         self.after(1000, lambda act=action: self.change_image(act.image))
+    def update_creature_action(self):
+
+        action = next(self.cycl_creat_act)
+        print(action)
+
+        self.change_image(action.image)
+        self.after(action.timer * 10, lambda: self.update_creature_action())
+        # self.update()
 
 
 
@@ -234,42 +244,43 @@ def _resize_image(
         new_width: int,
         new_height: int
 ) -> PhotoImage:
-    resized_image = PhotoImage(width=new_width, height=new_height)
-    for x in range(new_width):
-        for y in range(new_height):
-            x_old = x * old_width // new_width
-            y_old = y * old_height // new_height
-            rgb = '#{:02x}{:02x}{:02x}'.format(*image.get(x_old, y_old))
-            resized_image.put(rgb, (x, y))
-    return resized_image
+
+    if old_width < new_width:
+        print(f'{old_height = } {new_height = }')
+        scale_w = round(new_width / old_width)
+        scale_h = round(new_height / old_height)
+        image = image.zoom(2, scale_h)
+        print('увеличен')
+    else:
+        scale_w = round(old_width / new_width)
+        scale_h = round(old_height / new_height)
+        image = image.subsample(scale_w, scale_h)
+    # resized_image = PhotoImage(width=new_width, height=new_height)
+    # for x in range(new_width):
+    #     for y in range(new_height):
+    #         x_old = x * old_width // new_width
+    #         y_old = y * old_height // new_height
+    #         rgb = '#{:02x}{:02x}{:02x}'.format(*image.get(x_old, y_old))
+    #         resized_image.put(rgb, (x, y))
+    # return resized_image
+    print(image.width())
+    return image
 
 
 if __name__ == '__main__':
     root = RootWidget()
-
-    # root.mainframe = MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
-
-
-    # root.mainframe = Game(root, yara)
-    # yara = controller.App().creature
     frame = Game(root, controller.App().creature) if controller.App.is_live() else MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
     root.mainframe = frame
 
-    # root.mainframe.change_message('\n'.join(str(act.__class__.__name__) for act in yara.player_actions))
     if not isinstance(root.mainframe, MainMenu):
         root.mainframe.change_image(frame.origin.kind.image)
-        root.mainframe.update_creature(frame.origin)
-        # root.mainframe.update_creature_action(frame.origin)
         root.mainframe.change_message('Питомец рад вас видеть.')
-    # root.mainframe.update_creature(yara)
-    # # root.mainframe.change_image(r'D:\TOP\Git\progect\Gorinov_progect2\data\images\cat.png')
-    # root.mainframe.update_creature(yara)
+        root.mainframe.update_creature(frame.origin)
+        root.mainframe.update_creature_action()
 
     def on_closing():
         # сохранение перед выходом из игры
-        # print("сохранение")
         root.mainframe.origin.autosave()
-        # print(root.mainframe.origin.history)
         controller.LoadCreature.save(root.mainframe.origin)
         root.destroy()
     root.protocol("WM_DELETE_WINDOW", on_closing)
