@@ -3,6 +3,7 @@ from pathlib import Path
 from sys import path
 from tkinter import Tk, PhotoImage, StringVar, messagebox
 from tkinter.ttk import Frame, Button, Label
+from PIL import ImageTk, Image
 
 from src.tamagotchi.model import *
 from src.tamagotchi.app import controller
@@ -54,9 +55,7 @@ class MainMenu(Frame):
             img_width, img_height = img.width(), img.height()
             if img_width != img_size or img_height != img_size:
                 img = _resize_image(
-                    img,
-                    img_width,
-                    img_height,
+                    kind.image,
                     img_size,
                     img_size,
                 )
@@ -168,9 +167,7 @@ class Game(Frame):
             img_width, img_height = img.width(), img.height()
             if img_width != img_size or img_height != img_size:
                 img = _resize_image(
-                    img,
-                    img_width,
-                    img_height,
+                    action.image,
                     img_size,
                     img_size,
                 )
@@ -205,9 +202,7 @@ class Game(Frame):
         img_width, img_height = self._image.width(), self._image.height()
         if img_width != self._screen_size or img_height != self._screen_size:
             self._image = _resize_image(
-                self._image,
-                img_width,
-                img_height,
+                img_path,
                 self._screen_size,
                 self._screen_size,
             )
@@ -231,30 +226,21 @@ class Game(Frame):
         print(action)
 
         self.change_image(action.image)
-        self.after(action.timer * 10, lambda: self.update_creature_action())
-        # self.update()
+        self.after(action.timer * 100, lambda: self.update_creature_action())
+        self.update()
 
 
 
 
 def _resize_image(
-        image: PhotoImage,
-        old_width: int,
-        old_height: int,
+        image_path,
         new_width: int,
         new_height: int
 ) -> PhotoImage:
+    img = Image.open(image_path)
+    img = img.resize((new_width, new_height))
+    return ImageTk.PhotoImage(img)
 
-    if old_width < new_width:
-        print(f'{old_height = } {new_height = }')
-        scale_w = round(new_width / old_width)
-        scale_h = round(new_height / old_height)
-        image = image.zoom(scale_w, scale_h)
-        print('увеличен')
-    else:
-        scale_w = round(old_width / new_width)
-        scale_h = round(old_height / new_height)
-        image = image.subsample(scale_w, scale_h)
     # resized_image = PhotoImage(width=new_width, height=new_height)
     # for x in range(new_width):
     #     for y in range(new_height):
@@ -263,8 +249,7 @@ def _resize_image(
     #         rgb = '#{:02x}{:02x}{:02x}'.format(*image.get(x_old, y_old))
     #         resized_image.put(rgb, (x, y))
     # return resized_image
-    print(image.width())
-    return image
+
 
 
 if __name__ == '__main__':
