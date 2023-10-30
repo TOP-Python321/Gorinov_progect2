@@ -49,6 +49,13 @@ class Creature:
             self.params[cls].min = param.min
             self.params[cls].max = param.max
 
+    def add_creature_age(self, days_val: int):
+        self.age += days_val
+        print('добавление дней')
+        if self.age > self.kind[self.mature].days:
+            # без проверки диапазона
+            self._grow_up()
+
     def autosave(self):
         state = State(self.age)
         for param in self.params.values():
@@ -181,8 +188,16 @@ class PlayRope(Action):
         return f'{self.origin.name} играет с веревочкой'
 
 
+class Run(Action):
+    def action(self):
+        self.origin.params[Mood].value += 2
+        self.origin.params[Satiety].value -= 0.5
+        self.origin.params[Thirst].value += 0.5
+        return f'{self.origin.name} бегает'
+
+
 class Sleep(Action):
-    def action(self) -> None:
+    def action(self) -> str:
         self.origin.params[Satiety].value -= 0.5
         return f'{self.origin.name} спит'
 
@@ -190,9 +205,10 @@ class Sleep(Action):
 class Miss(Action):
     """Представляет действие питомца - 'скучать'."""
 
-    def action(self) -> None:
+    def action(self) -> str:
         self.origin.params[Mood].value -= 3
         return f'{self.origin.name} скучает'
+
 
 class Parameter(ABC):
     name: str
@@ -273,7 +289,7 @@ class Mood(Parameter):
     def update(self) -> None:
         if self.value < sum(self.origin.params[Mood].range) / 4:
             for action in self.origin.creature_action:
-                if action.__class__.__name__ == 'PlayRope':
+                if action.__class__.__name__ == 'PlayRope' or 'Run':
                     print('!!!action!!!')
                     action.action()
         else:
