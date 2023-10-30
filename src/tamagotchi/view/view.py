@@ -5,9 +5,13 @@ from tkinter import Tk, PhotoImage, StringVar, messagebox
 from tkinter.ttk import Frame, Button, Label
 from PIL import ImageTk, Image
 
+# Добавление пути папки проекта в переменную среды PYTHONPATH
+ROOT_DIR = Path(path[0]).parent.parent.parent
+path.append(str(ROOT_DIR))
+
 from src.tamagotchi.model import *
 from src.tamagotchi.app import controller
-from src.tamagotchi.utils import cat_kind
+from data import data
 
 
 class RootWidget(Tk):
@@ -34,6 +38,9 @@ class RootWidget(Tk):
         self.mainframe = new_frame
         self.mainframe.change_image(new_frame.origin.kind.image)
         self.mainframe.update_creature(new_frame.origin)
+        self.after(int(data.game_hours / 24), lambda: root.mainframe.update_creature_action())
+        self.after(data.game_hours, lambda: root.mainframe.origin.add_creature_age(1))
+        self.after(data.game_hours, lambda: root.mainframe.origin.add_creature_age(1))
         self.update()
 
 
@@ -213,7 +220,7 @@ class Game(Frame):
     def update_creature(self, origin: model.Creature):
         origin.update()
         self.change_params(str(origin))
-        self.after(5000, lambda: self.update_creature(origin))
+        self.after(int(data.game_hours), lambda: self.update_creature(origin))
         self.update()
 
     def cycle_creature_action(self, iter_action):
@@ -221,16 +228,16 @@ class Game(Frame):
             yield action
 
     def update_creature_action(self):
-
         action = next(self.cycl_creat_act)
         print(action)
-
         self.change_image(action.image)
-        self.after(action.timer * 100, lambda: self.update_creature_action())
+        for to_action in self.origin.creature_action:
+            if to_action == action:
+                print(action.__class__.__name__)
+                self.change_message(action.action())
+
+        self.after(action.timer * 1000, lambda: self.update_creature_action())
         self.update()
-
-
-
 
 def _resize_image(
         image_path,
@@ -251,7 +258,6 @@ def _resize_image(
     # return resized_image
 
 
-
 if __name__ == '__main__':
     root = RootWidget()
     frame = Game(root, controller.App().creature) if controller.App.is_live() else MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
@@ -261,7 +267,10 @@ if __name__ == '__main__':
         root.mainframe.change_image(frame.origin.kind.image)
         root.mainframe.change_message('Питомец рад вас видеть.')
         root.mainframe.update_creature(frame.origin)
-        root.mainframe.update_creature_action()
+        # через игровой час запускается активность питомца
+        root.after(int(data.game_hours), lambda: root.mainframe.update_creature_action())
+        # прибавление прожитого дня питомцу
+        root.after(data.game_hours * 24, lambda: root.mainframe.origin.add_creature_age(1))
 
     def on_closing():
         # сохранение перед выходом из игры

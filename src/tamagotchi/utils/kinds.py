@@ -1,4 +1,5 @@
 from src.tamagotchi.model import *
+from data.data import *
 from pathlib import Path
 from sys import path
 
@@ -6,7 +7,7 @@ ROOT_DIR = Path(path[0]).parent.parent.parent
 
 cat_kind = Kind(
     'Кот',
-    ROOT_DIR / 'data/images/cat.png',
+    IMAGES_PATH['cat']['main'],
     {
         Maturity.CUB: MatureOptions(
             4,
@@ -15,14 +16,15 @@ cat_kind = Kind(
             Satiety(5, 0, 25),
             Mood(10, 0, 50),
             player_actions=[
-                Feed(amount=20, image=ROOT_DIR / 'data/images/btn1.png'),
-                Water(image=ROOT_DIR / 'data/images/water.png'),
-                Pet(image=ROOT_DIR / 'data/images/pet_cat.png'),
-                PlayPet(image=ROOT_DIR / 'data/images/btn2.png')
+                Feed(amount=20, image=IMAGES_PATH['cat']['feed']),
+                Water(image=IMAGES_PATH['cat']['water']),
+                Pet(image=IMAGES_PATH['cat']['pet']),
+                PlayPet(image=IMAGES_PATH['cat']['play_pet'])
             ],
             creature_action={
-                PlayRope(timer=100, image=ROOT_DIR / 'data/images/cat_sleep.png'),
-                Miss(timer=80, image=ROOT_DIR / 'data/images/cat_peet.png')
+                PlayRope(timer=100, image=IMAGES_PATH['cat']['play_rope']),
+                Miss(timer=80, image=IMAGES_PATH['cat']['miss']),
+                Sleep(timer=220, image=IMAGES_PATH['cat']['sleep']),
             }
         ),
         Maturity.YOUNG: MatureOptions(
@@ -32,15 +34,15 @@ cat_kind = Kind(
             Satiety(0, 0, 30),
             Mood(0, 0, 50),
             player_actions=[
-                Feed(amount=25, image=ROOT_DIR / 'data/images/btn1.png'),
-                Water(image=ROOT_DIR / 'data/images/btn1.png'),
-                Pet(image=ROOT_DIR / 'data/images/btn1.png'),
-                PlayPet(image=ROOT_DIR / 'data/images/btn1.png')
+                Feed(amount=25, image=IMAGES_PATH['cat']['feed']),
+                Water(image=IMAGES_PATH['cat']['water']),
+                Pet(image=IMAGES_PATH['cat']['pet']),
+                PlayPet(image=IMAGES_PATH['cat']['play_pet'])
             ],
             creature_action={
-                PlayRope(timer=100, image=ROOT_DIR / 'data/images/cat_sleep.png'),
-                Miss(timer=80, image=ROOT_DIR / 'data/images/cat_peet.png'),
-                Sleep(timer=120, image=ROOT_DIR / 'data/images/cat_sleep.png'),
+                PlayRope(timer=100, image=IMAGES_PATH['cat']['play_rope']),
+                Miss(timer=80, image=IMAGES_PATH['cat']['miss']),
+                Sleep(timer=120, image=IMAGES_PATH['cat']['sleep']),
             }
         ),
         Maturity.ADULT: MatureOptions(
@@ -50,32 +52,32 @@ cat_kind = Kind(
             Satiety(0, 0, 25),
             Mood(0, 0, 40),
             player_actions=[
-                Feed(amount=20, image=ROOT_DIR / 'data/images/btn1.png'),
-                Water(image=ROOT_DIR / 'data/images/btn1.png'),
-                Pet(image=ROOT_DIR / 'data/images/btn1.png'),
-                PlayPet(image=ROOT_DIR / 'data/images/btn1.png')
+                Feed(amount=20, image=IMAGES_PATH['cat']['feed']),
+                Water(image=IMAGES_PATH['cat']['water']),
+                Pet(image=IMAGES_PATH['cat']['pet']),
+                PlayPet(image=IMAGES_PATH['cat']['play_pet'])
             ],
             creature_action={
-                PlayRope(timer=180),
-                Miss(timer=120),
-                Sleep(timer=60),
+                PlayRope(timer=180, image=IMAGES_PATH['cat']['play_rope']),
+                Miss(timer=120, image=IMAGES_PATH['cat']['miss']),
+                Sleep(timer=60, image=IMAGES_PATH['cat']['sleep']),
             }
         ),
         Maturity.OLD: MatureOptions(
-            12,
+            25,
             Health(0, 0, 35),
             Thirst(0, 0, 20),
             Satiety(0, 0, 20),
             Mood(0, 0, 30),
             player_actions=[
-                Feed(amount=10, image=ROOT_DIR / 'data/images/btn1.png'),
-                Water(image=ROOT_DIR / 'data/images/btn1.png'),
-                Pet(image=ROOT_DIR / 'data/images/btn1.png'),
-                PlayPet(image=ROOT_DIR / 'data/images/btn1.png')
+                Feed(amount=10, image=IMAGES_PATH['cat']['feed']),
+                Water(image=IMAGES_PATH['cat']['water']),
+                Pet(image=IMAGES_PATH['cat']['pet']),
+                PlayPet(image=IMAGES_PATH['cat']['play_pet'])
             ],
             creature_action={
-                Miss(timer=80),
-                Sleep(timer=30)
+                Miss(timer=60, image=IMAGES_PATH['cat']['miss']),
+                Sleep(timer=180, image=IMAGES_PATH['cat']['sleep']),
             }
         ),
     }
@@ -83,52 +85,77 @@ cat_kind = Kind(
 
 dog_kind = Kind(
     'Пёс',
-    ROOT_DIR / 'data/images/dog.png',
+    IMAGES_PATH['dog']['main'],
     {
         Maturity.CUB: MatureOptions(
-            4,
-            Health(12, 0, 25),
-            Satiety(7, 0, 25),
+            3,
+            Health(15, 0, 25),
+            Thirst(3, 0, 20),
+            Satiety(3, 0, 20),
+            Mood(10, 0, 40),
             player_actions=[
-                Feed(amount=20, image=ROOT_DIR / 'data/images/btn1.png'),
+                Feed(amount=20, image=IMAGES_PATH['dog']['feed']),
+                Water(image=IMAGES_PATH['dog']['water']),
+                Pet(image=IMAGES_PATH['dog']['pet']),
+                PlayPet(image=IMAGES_PATH['dog']['play_pet'])
             ],
             creature_action={
-                Miss(timer=100),
+                Run(timer=100, image=IMAGES_PATH['dog']['run']),
+                Miss(timer=80, image=IMAGES_PATH['dog']['miss']),
+                Sleep(timer=220, image=IMAGES_PATH['dog']['sleep']),
             }
         ),
         Maturity.YOUNG: MatureOptions(
-            11,
+            9,
             Health(0, 0, 50),
-            Satiety(0, 0, 30),
+            Thirst(0, 0, 35),
+            Satiety(0, 0, 40),
+            Mood(0, 0, 50),
             player_actions=[
-                Feed(amount=25, image=ROOT_DIR / 'data/images/btn1.png'),
+                Feed(amount=35, image=IMAGES_PATH['dog']['feed']),
+                Water(image=IMAGES_PATH['dog']['water']),
+                Pet(image=IMAGES_PATH['dog']['pet']),
+                PlayPet(image=IMAGES_PATH['dog']['play_pet'])
             ],
             creature_action={
-                Miss(timer=100),
-                Sleep(timer=120),
+                Run(timer=100, image=IMAGES_PATH['dog']['run']),
+                Miss(timer=80, image=IMAGES_PATH['dog']['miss']),
+                Sleep(timer=120, image=IMAGES_PATH['dog']['sleep']),
             }
         ),
         Maturity.ADULT: MatureOptions(
-            20,
+            15,
             Health(0, 0, 45),
-            Satiety(0, 0, 25),
+            Thirst(0, 0, 35),
+            Satiety(0, 0, 35),
+            Mood(0, 0, 45),
             player_actions=[
-                Feed(amount=20, image=ROOT_DIR / 'data/images/btn1.png'),
+                Feed(amount=25, image=IMAGES_PATH['dog']['feed']),
+                Water(image=IMAGES_PATH['dog']['water']),
+                Pet(image=IMAGES_PATH['dog']['pet']),
+                PlayPet(image=IMAGES_PATH['dog']['play_pet'])
             ],
             creature_action={
-                Sleep(timer=60),
-                Miss(timer=180),
+                Run(timer=180, image=IMAGES_PATH['dog']['run']),
+                Miss(timer=120, image=IMAGES_PATH['dog']['miss']),
+                Sleep(timer=60, image=IMAGES_PATH['dog']['sleep']),
             }
         ),
         Maturity.OLD: MatureOptions(
-            12,
+            20,
             Health(0, 0, 35),
-            Satiety(0, 0, 20),
+            Thirst(0, 0, 30),
+            Satiety(0, 0, 30),
+            Mood(0, 0, 30),
             player_actions=[
-                Feed(amount=10, image=ROOT_DIR / 'data/images/btn1.png'),
+                Feed(amount=20, image=IMAGES_PATH['dog']['feed']),
+                Water(image=IMAGES_PATH['dog']['water']),
+                Pet(image=IMAGES_PATH['dog']['pet']),
+                PlayPet(image=IMAGES_PATH['dog']['play_pet'])
             ],
             creature_action={
-                Sleep(timer=30)
+                Miss(timer=60, image=IMAGES_PATH['dog']['miss']),
+                Sleep(timer=180, image=IMAGES_PATH['dog']['sleep'])
             }
         ),
     }

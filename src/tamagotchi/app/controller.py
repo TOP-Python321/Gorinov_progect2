@@ -2,20 +2,13 @@ from datetime import datetime as dt
 from fractions import Fraction as frac
 from json import dumps as jdumps, loads as jloads
 from pathlib import Path
-from sys import path
-
 
 from src.tamagotchi.model import model
-
-
-ROOT_DIR = Path(path[0]).parent.parent.parent
-
+from data import data
 
 class App:
     def __init__(self):
-        # self.creature: model.Creature = LoadCreature.load() if self._is_live() else MainMenu.choose_kind()
-        if self.is_live():
-            self.creature: model.Creature = LoadCreature.load()
+        self.creature: model.Creature = LoadCreature.load()
 
     @staticmethod
     def is_live() -> bool:
@@ -23,12 +16,12 @@ class App:
 
 
 class LoadCreature:
-    default_path: str | Path = ROOT_DIR / 'data/creature.save'
-    game_days_to_real_hours: frac = frac(1, 2)
+    default_path: str | Path = data.creature_save
+    game_days_to_real_hours: frac = frac(*data.days_hours)
 
     @classmethod
     def save(cls, creature: model.Creature):
-        data = {
+        data_save = {
             'timestamp': dt.now().timestamp(),
             'kind': creature.kind.name,
             'name': creature.name,
@@ -36,25 +29,25 @@ class LoadCreature:
             'maturity': creature.mature.value,
             'params': creature.history[-1].__dict__
         }
-        data = jdumps(data, ensure_ascii=False)
-        cls.default_path.write_text(data, encoding='utf-8')
+        data_save = jdumps(data_save, ensure_ascii=False)
+        cls.default_path.write_text(data_save, encoding='utf-8')
 
     @classmethod
     def load(cls) -> model.Creature:
-        data = cls.default_path.read_text(encoding='utf-8')
-        data = jloads(data)
-        diff_hours = (dt.now().timestamp() - data['timestamp']) / 3600
+        data_save = cls.default_path.read_text(encoding='utf-8')
+        data_save = jloads(data_save)
+        diff_hours = (dt.now().timestamp() - data_save['timestamp']) / 3600
         print(f'{diff_hours = }')
 
         kind = None
         for elem in LoadKinds(*LoadKinds.generate()):
-            if elem.name == data['kind']:
+            if elem.name == data_save['kind']:
                 kind = elem
 
-        creature = model.Creature(kind, data['name'])
-        creature.age = data['age']
-        creature.mature = model.Maturity(data['maturity'])
-        for k, v in data['params'].items():
+        creature = model.Creature(kind, data_save['name'])
+        creature.age = data_save['age']
+        creature.mature = model.Maturity(data_save['maturity'])
+        for k, v in data_save['params'].items():
             for elem in creature.params.keys():
                 if elem.__name__ == k:
                     creature.params[elem].value = v
@@ -91,7 +84,6 @@ class LoadCreature:
         """Пересчитывает параметры существа в соответствии с мат.моделью имитации жизни при закрытом приложении (ТЗ п.3в)."""
         # один игровой день при закрытом приложении равен 2 часам реального времени
         game_day = hours * cls.game_days_to_real_hours
-        print(f'{game_day = }')
         flag = True
         while flag:
             list_bool = []
@@ -103,7 +95,8 @@ class LoadCreature:
                     list_bool.append(True)
                     action.action()
                     game_day -= timer_hours
-                    saved_creature.age += timer_hours
+                    # saved_creature.age += timer_hours
+                    saved_creature.add_creature_age(int(timer_hours))
                     if saved_creature.age > saved_creature.kind[saved_creature.mature].days:
                         # без проверки диапазона
                         saved_creature._grow_up()
@@ -123,7 +116,7 @@ class MainMenu:
     def choose_kind(chosen_kind: model.Kind) -> model.Creature:
         # надо передать имя питомца
         """Создаёт питомца на основе выбранного пользователем вида."""
-        return model.Creature(chosen_kind, '')
+        return model.Creature(chosen_kind, data.default_name)
 
 
 class LoadKinds(list):
