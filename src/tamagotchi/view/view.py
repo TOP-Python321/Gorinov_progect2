@@ -39,7 +39,7 @@ class RootWidget(Tk):
         self.mainframe.change_image(new_frame.origin.kind.image)
         self.mainframe.update_creature(new_frame.origin)
         self.after(data.game_hours, lambda: root.mainframe.update_creature_action())
-        self.after(data.game_hours, lambda: root.mainframe.origin.add_creature_age(1))
+        self.after(data.game_hours * 24, lambda: root.mainframe.origin.add_creature_age(1))
         self.update()
 
 
