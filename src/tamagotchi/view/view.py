@@ -38,8 +38,7 @@ class RootWidget(Tk):
         self.mainframe = new_frame
         self.mainframe.change_image(new_frame.origin.kind.image)
         self.mainframe.update_creature(new_frame.origin)
-        self.after(int(data.game_hours / 24), lambda: root.mainframe.update_creature_action())
-        self.after(data.game_hours, lambda: root.mainframe.origin.add_creature_age(1))
+        self.after(data.game_hours, lambda: root.mainframe.update_creature_action())
         self.after(data.game_hours, lambda: root.mainframe.origin.add_creature_age(1))
         self.update()
 
@@ -220,7 +219,7 @@ class Game(Frame):
     def update_creature(self, origin: model.Creature):
         origin.update()
         self.change_params(str(origin))
-        self.after(int(data.game_hours), lambda: self.update_creature(origin))
+        self.after(data.game_hours, lambda: self.update_creature(origin))
         self.update()
 
     def cycle_creature_action(self, iter_action):
@@ -268,7 +267,7 @@ if __name__ == '__main__':
         root.mainframe.change_message('Питомец рад вас видеть.')
         root.mainframe.update_creature(frame.origin)
         # через игровой час запускается активность питомца
-        root.after(int(data.game_hours), lambda: root.mainframe.update_creature_action())
+        root.after(data.game_hours, lambda: root.mainframe.update_creature_action())
         # прибавление прожитого дня питомцу
         root.after(data.game_hours * 24, lambda: root.mainframe.origin.add_creature_age(1))
 
