@@ -185,8 +185,9 @@ class Game(Frame):
                 # необходимо добавить параметр в lambda-функцию, чтобы каждая из создаваемых в цикле функций обращалась к соответствующему экземпляру action
                 # иначе, функции обращаются к action только во время вызова, а не в момент создания
                 # https://docs.python.org/3/faq/programming.html#why-do-lambdas-defined-in-a-loop-with-different-values-all-return-the-same-result
-                command=lambda act=action: self.change_message(f'{act.action()}'),
-                # command=lambda act1=action: self.change_image(act1.image),
+
+                # lambda вызывает функцию которая обновляет change_message() и change_params()
+                command=lambda act=action: self.to_button_action(act)
             )
             btn.grid(
                 row=0, column=i,
@@ -202,6 +203,11 @@ class Game(Frame):
     def change_params(self, text: str) -> None:
         self.params.set(text)
         self.update_idletasks()
+
+    def to_button_action(self, action):
+        """Обновляет текстовые поля состояния питомца и параметры питомца."""
+        self.change_message(action.action())
+        self.change_params(str(self.origin))
 
     def change_image(self, img_path: str | Path) -> None:
         self._image = PhotoImage(file=img_path)
