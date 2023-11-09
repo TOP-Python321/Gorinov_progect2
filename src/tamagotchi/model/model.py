@@ -6,10 +6,13 @@ from pathlib import Path
 from sys import path
 from typing import Type, Self
 
+from data import data
+
 ROOT_DIR = Path(path[0]).parent.parent.parent
 
 
 class Maturity(Enum):
+    """Описывает стадии возраста существа."""
     CUB = 0
     YOUNG = 1
     ADULT = 2
@@ -17,6 +20,7 @@ class Maturity(Enum):
 
 
 class Creature:
+    """Описывает существо."""
     def __init__(self, kind: 'Kind', name: str):
         self.kind = kind
         self.name = name
@@ -37,10 +41,15 @@ class Creature:
         self.history: History = History()
 
     def update(self):
+        """Обновляет все параметры существа."""
         for param in self.params.values():
             param.update()
 
-    def _grow_up(self):
+    def _grow_up(self) -> None:
+        """
+        Переключает стадию возраста существа на следующую ступень и заменяет минимальные и максимальные значения
+        параметров в соответчтвии ступени возраста.
+        """
         try:
             self.mature = Maturity(self.mature.value + 1)
         except ValueError:
@@ -49,15 +58,16 @@ class Creature:
             self.params[cls].min = param.min
             self.params[cls].max = param.max
 
-    def add_creature_age(self, days_val: int):
+    def add_creature_age(self, days_val: int) -> None:
+        """Увеличивает количество прожитых дней существа."""
         self.age += days_val
-        print('добавление дней')
         if self.age > self.kind[self.mature].days:
             # без проверки диапазона
             self._grow_up()
 
     def autosave(self):
-        state = State(self.age)
+        """Сохраняет параметры существа в self.history"""
+        state: State = State(self.age)
         for param in self.params.values():
             setattr(state, param.__class__.__name__, param.value)
         self.history.append(state)
@@ -70,7 +80,9 @@ class Creature:
 
 
 class History(list):
+    """Представляет класс опекун для State."""
     def get_param_history(self, param_name: str) -> tuple[float, ...]:
+        """Возвращает кортеж с параметров 'param_name'"""
         return tuple(
             getattr(state, param_name)
             for state in self
@@ -90,6 +102,7 @@ class State:
 
 
 class Action(ABC):
+    """Описывает абстрактный класс действий игрока и питомца."""
     name: str
 
     def __init__(
@@ -110,12 +123,13 @@ class Action(ABC):
 
 
 class NoAction:
+    """Описывает кнопки в tkinter, для которых не назначены команды активностей игрока."""
     __instance: Self = None
 
     def __new__(cls):
         if cls.__instance is None:
             self = super().__new__(cls)
-            self.image = ROOT_DIR / 'data/images/no_action.png'
+            self.image = data.IMAGES_PATH['no_action']
             self.state = 'disabled'
             self.action = lambda: None
             cls.__instance = self
@@ -123,6 +137,7 @@ class NoAction:
 
 
 class Feed(Action):
+    """Описывает действие - 'покормить питомца'."""
     name = 'покормить питомца'
 
     def __init__(
@@ -137,35 +152,37 @@ class Feed(Action):
         self.amount = amount
 
     def action(self):
+        """Пересчитывает параметр Satiety"""
         self.origin.params[Satiety].value += self.amount
         return f'вы покормили {self.origin.name}'
 
 
 class Water(Action):
-    """Представляет класс описывающий действие - "'напоить питомца'"."""
-
+    """Представляет класс описывающий действие - 'напоить питомца'."""
     name = 'напоить питомца'
 
     def action(self):
+        """Пересчитывает параметр Thirst"""
         self.origin.params[Thirst].value -= 1
         return f'вы напоили {self.origin.name}'
 
 
 class Pet(Action):
-    """Описывает действие - "приласкать питомца"."""
+    """Описывает действие - 'приласкать питомца'."""
 
     name = 'приласкать питомца'
 
     def action(self):
+        """Пересчитывает параметр Mood"""
         self.origin.params[Mood].value += 1
         return f'вы ласкаете {self.origin.name}'
 
 class PlayPet(Action):
-    """Описывает действие - "поиграть с питомцем"."""
-
+    """Описывает действие - 'поиграть с питомцем'."""
     name = 'поиграть с питомцем'
 
     def action(self):
+        """Пересчитывает параметы существа"""
         self.origin.params[Mood].value += 1
         self.origin.params[Satiety].value -= 2
         self.origin.params[Thirst].value += 2
@@ -176,12 +193,13 @@ class PlayPet(Action):
                 self.origin.params[Satiety].range) / 2
         ):
             self.origin.params[Health].value += 1
-
         return f'вы играете с {self.origin.name}'
 
 
 class PlayRope(Action):
+    """Описывает действие  - 'поиграть с веревочкой'."""
     def action(self):
+        """Пересчитывает параметы существа"""
         self.origin.params[Mood].value += 2
         self.origin.params[Satiety].value -= 0.5
         self.origin.params[Thirst].value += 0.5
@@ -189,7 +207,9 @@ class PlayRope(Action):
 
 
 class Run(Action):
+    """Описывает действие  - 'бегать'."""
     def action(self):
+        """Пересчитывает параметы существа"""
         self.origin.params[Mood].value += 2
         self.origin.params[Satiety].value -= 0.5
         self.origin.params[Thirst].value += 0.5
@@ -197,7 +217,9 @@ class Run(Action):
 
 
 class Sleep(Action):
+    """Описывает действие  - 'спать'."""
     def action(self) -> str:
+        """Пересчитывает параметр Satiety"""
         self.origin.params[Satiety].value -= 0.5
         return f'{self.origin.name} спит'
 
@@ -206,11 +228,13 @@ class Miss(Action):
     """Представляет действие питомца - 'скучать'."""
 
     def action(self) -> str:
+        """Пересчитывает параметр Mood"""
         self.origin.params[Mood].value -= 3
         return f'{self.origin.name} скучает'
 
 
 class Parameter(ABC):
+    """Абстактный класс параметров существа."""
     name: str
 
     def __init__(
@@ -230,14 +254,17 @@ class Parameter(ABC):
 
     @property
     def range(self):
+        """Возвращает минимальное и максимальное значение параметра."""
         return self.min, self.max
 
     @property
     def value(self) -> float:
+        """Возвращает значение параметра."""
         return self.__value
 
     @value.setter
     def value(self, number: float):
+        """Устанавливает значение параметра."""
         if isinstance(number, Real):
             if number < self.min:
                 self.__value = self.min
@@ -250,10 +277,12 @@ class Parameter(ABC):
 
     @abstractmethod
     def update(self):
+        """обновляет параметры существа."""
         pass
 
 
 class Health(Parameter):
+    """Описывает здоровье существа."""
     name = 'здоровье'
 
     def update(self):
@@ -269,7 +298,9 @@ class Health(Parameter):
 
 
 class Satiety(Parameter):
+    """Описывает сытость существа."""
     name = 'сытость'
+
     def update(self):
         self.value -= 1
 
@@ -290,13 +321,13 @@ class Mood(Parameter):
         if self.value < sum(self.origin.params[Mood].range) / 4:
             for action in self.origin.creature_action:
                 if action.__class__.__name__ == 'PlayRope' or 'Run':
-                    print('!!!action!!!')
                     action.action()
         else:
             self.value -= 1
 
 
 class MatureOptions:
+    """Описывает параметры существа в зависимости от возраста."""
     def __init__(
             self,
             days: int,
@@ -317,6 +348,7 @@ AgesParameters = dict[Maturity, MatureOptions] | Iterable[tuple[Maturity, Mature
 
 
 class Kind(dict):
+    """Описывает вид существа."""
     def __init__(
             self,
             name: str,

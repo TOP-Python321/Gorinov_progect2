@@ -15,7 +15,7 @@ from data import data
 
 
 class RootWidget(Tk):
-    """"""
+    """Описывает главный фрейм."""
     def __init__(self):
         super().__init__()
         self.title('Тамагочи')
@@ -34,6 +34,7 @@ class RootWidget(Tk):
         self.mainframe: Frame = None
 
     def change_frame(self, new_frame: Frame):
+        """Меняет вложенный фрейм на переданный фрейм в параметре <new_frame> """
         self.mainframe.destroy()
         self.mainframe = new_frame
         self.mainframe.change_image(new_frame.origin.kind.image)
@@ -44,7 +45,7 @@ class RootWidget(Tk):
 
 
 class MainMenu(Frame):
-    """"""
+    """Описывает фрейм первого запуска игры и выбор питомца."""
     def __init__(self, master: RootWidget, kinds: controller.LoadKinds[model.Kind]):
         super().__init__(master)
         pad = master.width // 100 + 1
@@ -83,7 +84,7 @@ class MainMenu(Frame):
 
 
 class Game(Frame):
-    """"""
+    """Описывает фрейм игрового процесса."""
     def __init__(self, master: RootWidget, origin: model.Creature):
         super().__init__(master)
         self.origin = origin
@@ -154,6 +155,7 @@ class Game(Frame):
         self.create_buttons(origin)
 
     def create_buttons(self, origin: model.Creature):
+        """Создаёт кнопки активности игрока."""
         buttons_panel = Frame(self)
         buttons_panel.grid(
             row=2, column=0,
@@ -197,10 +199,12 @@ class Game(Frame):
             self.actions.append(btn)
 
     def change_message(self, text: str) -> None:
+        """Назначает текст для Label с grig row=0, column=0"""
         self.message.set(text)
         self.update_idletasks()
 
     def change_params(self, text: str) -> None:
+        """Назначает текст для Label с grig row=0, column=1"""
         self.params.set(text)
         self.update_idletasks()
 
@@ -210,6 +214,7 @@ class Game(Frame):
         self.change_params(str(self.origin))
 
     def change_image(self, img_path: str | Path) -> None:
+        """Назначает картинку фрейму"""
         self._image = PhotoImage(file=img_path)
         img_width, img_height = self._image.width(), self._image.height()
         if img_width != self._screen_size or img_height != self._screen_size:
@@ -221,34 +226,35 @@ class Game(Frame):
         self.screen.configure(image=self._image)
         self.update_idletasks()
 
-    # сделать привязку к игровому дню
     def update_creature(self, origin: model.Creature):
+        """Обновляет рараметры существа."""
         origin.update()
         self.change_params(str(origin))
         self.after(data.game_hours, lambda: self.update_creature(origin))
         self.update()
 
     def cycle_creature_action(self, iter_action):
+        """Циклично возвращает действия питомца."""
         for action in cycle(iter_action):
             yield action
 
     def update_creature_action(self):
+        """Вызывает действия игрока с определенным промежутком времени."""
         action = next(self.cycl_creat_act)
-        print(action)
         self.change_image(action.image)
         for to_action in self.origin.creature_action:
             if to_action == action:
-                print(action.__class__.__name__)
                 self.change_message(action.action())
-
         self.after(action.timer * 1000, lambda: self.update_creature_action())
         self.update()
 
+
 def _resize_image(
-        image_path,
+        image_path: Path,
         new_width: int,
         new_height: int
 ) -> PhotoImage:
+    """Изменяет размер картинки."""
     img = Image.open(image_path)
     img = img.resize((new_width, new_height))
     return ImageTk.PhotoImage(img)
@@ -265,7 +271,9 @@ def _resize_image(
 
 if __name__ == '__main__':
     root = RootWidget()
-    frame = Game(root, controller.App().creature) if controller.App.is_live() else MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
+    frame = Game(root, controller.App().creature) \
+        if controller.App.is_live() \
+        else MainMenu(root, controller.LoadKinds(*controller.LoadKinds.generate()))
     root.mainframe = frame
 
     if not isinstance(root.mainframe, MainMenu):

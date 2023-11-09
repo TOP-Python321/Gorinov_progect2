@@ -2,25 +2,32 @@ from datetime import datetime as dt
 from fractions import Fraction as frac
 from json import dumps as jdumps, loads as jloads
 from pathlib import Path
-
 from src.tamagotchi.model import model
 from data import data
 
+
 class App:
+    """
+    Представляет метод для провеки файла с данными существа. И является хранителем существа восстановленного
+    из файла.
+    """
     def __init__(self):
         self.creature: model.Creature = LoadCreature.load()
 
     @staticmethod
     def is_live() -> bool:
+        """Проверяет наличие файла с данными существа"""
         return LoadCreature.default_path.is_file()
 
 
 class LoadCreature:
+    """Представляет методы для сохранения существа в файл и загрузку существа из файла."""
     default_path: str | Path = data.creature_save
     game_days_to_real_hours: frac = frac(*data.days_hours)
 
     @classmethod
-    def save(cls, creature: model.Creature):
+    def save(cls, creature: model.Creature) -> None:
+        """Сщхраняет данные существа в файл."""
         data_save = {
             'timestamp': dt.now().timestamp(),
             'kind': creature.kind.name,
@@ -34,10 +41,10 @@ class LoadCreature:
 
     @classmethod
     def load(cls) -> model.Creature:
+        """Загружает существо из файла."""
         data_save = cls.default_path.read_text(encoding='utf-8')
         data_save = jloads(data_save)
         diff_hours = (dt.now().timestamp() - data_save['timestamp']) / 3600
-        print(f'{diff_hours = }')
 
         kind = None
         for elem in LoadKinds(*LoadKinds.generate()):
@@ -86,11 +93,10 @@ class LoadCreature:
         game_day = hours * cls.game_days_to_real_hours
         flag = True
         while flag:
-            list_bool = []
+            list_bool: list = []
             for action in saved_creature.creature_action:
                 # перевод таймера в часы
-                timer_hours = round(action.timer / 60, 2)
-                print(timer_hours)
+                timer_hours: float = round(action.timer / 60, 2)
                 if timer_hours < game_day:
                     list_bool.append(True)
                     action.action()
@@ -102,12 +108,13 @@ class LoadCreature:
                         saved_creature._grow_up()
                 else:
                     list_bool.append(False)
-                print(list_bool)
             flag = any(list_bool)
         return saved_creature
 
 
 class MainMenu:
+    """Представляет класс с инициализацией игры (первый запуск)."""
+    # метод не задействован
     @staticmethod
     def start():
         """Запускает GUI с фреймом главного меню."""
@@ -120,16 +127,17 @@ class MainMenu:
 
 
 class LoadKinds(list):
-    # default_path: str | Path = ROOT_DIR / 'data/kinds.save'
-
+    """Представляет список возможных видов существ."""
     def __init__(self, *kinds: model.Kind):
         super().__init__(kinds)
 
     @classmethod
     def read_file(cls):
+        """Считывает виды существ из файла."""
         pass
 
     @staticmethod
-    def generate():
+    def generate() -> tuple:
+        """Импортирует и возвращает кортеж с видами существ из файла."""
         from src.tamagotchi.utils import cat_kind, dog_kind
         return cat_kind, dog_kind

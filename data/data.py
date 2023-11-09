@@ -16,6 +16,7 @@ game_hours: int = 30000
 # имя питомца по умолчанию (пока не реализован запрос имени)
 default_name = 'Питомец'
 
+
 # пути к картинкам проекта
 IMAGES_PATH = {
     'cat': {
@@ -37,5 +38,6 @@ IMAGES_PATH = {
         'run': ROOT_DIR / 'data/images/dog_run.png',
         'miss': ROOT_DIR / 'data/images/dog_miss.png',
         'sleep': ROOT_DIR / 'data/images/dog_sleep.png'
-    }
+    },
+    'no_action': ROOT_DIR / 'data/images/no_action.png'
 }
